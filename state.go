@@ -23,7 +23,7 @@ func (state *algorithmState) setRes(trueVals byte, result bool) {
 	if result {
 		intResult = 1
 	}
-	state.done.SetBit(&state.done, int(trueVals), intResult)
+	state.res.SetBit(&state.res, int(trueVals), intResult)
 }
 
 func (state *algorithmState) F(trueVals byte) bool {
