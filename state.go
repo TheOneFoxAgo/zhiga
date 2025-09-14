@@ -1,31 +1,28 @@
 package main
 
-import "math/big"
+import "github.com/bits-and-blooms/bitset"
 
 type algorithmState struct {
-	f, done, res big.Int
+	max          uint
+	f, done, res bitset.BitSet
 }
 
-func (state *algorithmState) isDone(trueVals byte) bool {
-	return state.done.Bit(int(trueVals)) == 1
+func (state *algorithmState) isDone(trueVals uint) bool {
+	return state.done.Test(uint(trueVals))
 }
 
-func (state *algorithmState) setDone(trueVals byte) {
-	state.done.SetBit(&state.done, int(trueVals), 1)
+func (state *algorithmState) setDone(trueVals uint) {
+	state.done.Set(uint(trueVals))
 }
 
-func (state *algorithmState) Res(trueVals byte) bool {
-	return state.res.Bit(int(trueVals)) == 1
+func (state *algorithmState) Res(trueVals uint) bool {
+	return state.res.Test(uint(trueVals))
 }
 
-func (state *algorithmState) setRes(trueVals byte, result bool) {
-	var intResult uint = 0
-	if result {
-		intResult = 1
-	}
-	state.res.SetBit(&state.res, int(trueVals), intResult)
+func (state *algorithmState) setRes(trueVals uint, result bool) {
+	state.res.SetTo(uint(trueVals), result)
 }
 
-func (state *algorithmState) F(trueVals byte) bool {
-	return state.f.Bit(int(trueVals)) == 1
+func (state *algorithmState) F(trueVals uint) bool {
+	return state.f.Test(uint(trueVals))
 }

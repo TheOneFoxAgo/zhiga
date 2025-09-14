@@ -1,41 +1,37 @@
 package main
 
-import "math/big"
+import "github.com/bits-and-blooms/bitset"
 
-func zhigalkin(f big.Int, len uint) big.Int {
-	initState := algorithmState{f, big.Int{}, big.Int{}}
-	initVals := byte(len - 1)
-	initCombinations := make([]byte, len)
-	for i := range initCombinations {
-		initCombinations[i] = byte(i)
-	}
-	algorithm(initVals, initCombinations, &initState)
+func zhigalkin(f bitset.BitSet, len uint) bitset.BitSet {
+	initVals := len - 1
+	initState := algorithmState{initVals, f, bitset.BitSet{}, bitset.BitSet{}}
+	algorithm(initVals, &initState)
 	return initState.res
 }
 
-func algorithm(trueVals byte, combinations2check []byte, state *algorithmState) {
+func algorithm(trueVals uint, state *algorithmState) {
 	// sink
-	for mask := byte(1); mask != 0; mask <<= 1 {
-		next := trueVals ^ mask
-		if next > trueVals {
-			continue
-		} else if !state.isDone(next) {
-			nextCombinations := make([]byte, len(combinations2check)/2)
-			idx := 0
-			for _, c := range combinations2check {
-				if c&mask == 0 {
-					nextCombinations[idx] = c
-					idx += 1
-				}
-			}
-			algorithm(next, nextCombinations, state)
+	var minor, mask, next uint
+	for rem := trueVals; rem != 0; rem &= minor {
+		minor = rem - 1
+		mask = rem & ^minor
+		next = trueVals ^ mask
+		if !state.isDone(next) {
+			algorithm(next, state)
 		}
 	}
 	// float
 	res := state.F(trueVals)
-	for _, c := range combinations2check {
-		if state.Res(c) {
+	banned := trueVals ^ state.max
+	incr := banned + 1
+	idx := uint(0)
+	for {
+		if state.Res(idx) {
 			res = !res
+		}
+		idx = trueVals & (idx + incr)
+		if idx == 0 {
+			break
 		}
 	}
 	state.setDone(trueVals)

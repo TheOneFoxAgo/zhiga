@@ -1,8 +1,9 @@
 package main
 
 import (
-	"math/big"
 	"testing"
+
+	"github.com/bits-and-blooms/bitset"
 )
 
 func TestBasicF(t *testing.T) {
@@ -13,10 +14,12 @@ func TestAdvancedF(t *testing.T) {
 	baseTest(t, 16, 0b0001_0000_1100_0100, 0b0111_1100_1000_1100)
 }
 
-func baseTest(t *testing.T, len uint, in int64, out int64) {
-	f := big.NewInt(in)
-	res := zhigalkin(*f, len)
-	if res.Cmp(big.NewInt(out)) != 0 {
-		t.Errorf("Want: %b, got: %b", out, res.Int64())
+func baseTest(t *testing.T, len uint, in uint64, out uint64) {
+	var f, want bitset.BitSet
+	f.SetBitsetFrom([]uint64{in})
+	want.SetBitsetFrom([]uint64{out})
+	res := zhigalkin(f, len)
+	if res.Equal(&want) {
+		t.Errorf("Want: %*s, got: %*s", len, want.DumpAsBits(), len, res.DumpAsBits())
 	}
 }
